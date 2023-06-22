@@ -1,0 +1,90 @@
+import numpy as np
+
+xaxis = [
+    [
+        [6, 2, 3],
+        [5, 8, 2],
+        [4, 3, 9]
+    ],
+    [
+        [1, 1, 1, 1],
+        [2, 2, 2, 2],
+        [3, 3, 3, 3],
+        [4, 4, 4, 4]
+    ]
+]
+
+yaxis = [
+    [31, 38, 31],
+    [5, 5, 5, 5]
+]
+
+def check_diagonally_dominant(x):
+  x = np.array(x)
+  print("numpy array x: \n", x)
+
+  diagonal = np.diag(np.abs(x))
+  print("diagonal element: ", diagonal)
+
+  nonDiagonal = np.sum(x, axis=1)
+  nonDiagonal -= diagonal
+  print("non diagonal element: ", nonDiagonal)
+
+  if np.all(diagonal > nonDiagonal):
+    return True
+  else:
+    return False
+
+def gauss_seidel(x, y, epsilon = 0.0001, maxIteration = 20):
+  x = np.array(x)
+  y = np.array(y)
+
+  result = np.zeros(x.shape[0])
+
+  diagonal = np.diag(x)
+
+  x = -x
+
+  np.fill_diagonal(x, 0)
+  print(x)
+
+  for i in range(maxIteration):
+    result_new = np.array(result)
+
+    for j, row in enumerate(x):
+      result_new[j] = (y[j] + np.dot(result_new, row)) / diagonal[j]
+    result_new = np.array(result_new)
+
+    euclidianDistance = np.sqrt(np.dot(result_new - result, result_new - result))
+
+    print("iteration ", i, ": ", result_new)
+    print("euclidian distance: ", euclidianDistance)
+
+    if euclidianDistance < epsilon:
+      print("solution: ", result_new)
+      return True
+    else:
+      result = result_new
+  return False
+
+for x in zip(xaxis, yaxis):
+  print(x)
+
+print()
+
+for i, (x, y) in enumerate(zip(xaxis, yaxis)):
+  print()
+  print("problem: ", (i + 1))
+  print("x component: ", x)
+  print("y component: ", y)
+
+  check_diagonally_dominant(x)
+
+  if check_diagonally_dominant(x):
+    print("the matrix is diagonally dominant.",)
+    if gauss_seidel(x, y):
+      print("convergent")
+    else:
+      print("not convergent")
+  else:
+    print("the matrix is NOT diagonally dominant.")
