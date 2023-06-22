@@ -1,0 +1,232 @@
+GAUSS ELL
+
+import numpy as np
+
+xaxis = [
+    [
+        [6, 2, 3],
+        [5, 8, 2],
+        [4, 3, 9]
+    ],
+    [
+        [1, 1, 1, 1],
+        [2, 2, 2, 2],
+        [3, 3, 3, 3],
+        [4, 4, 4, 4]
+    ]
+]
+
+yaxis = [
+    [31, 38, 31],
+    [5, 5, 5, 5]
+]
+
+def check_diagonally_dominant(x):
+  x = np.array(x)
+  print("numpy array x: \n", x)
+
+  diagonal = np.diag(np.abs(x))
+  print("diagonal element: ", diagonal)
+
+  nonDiagonal = np.sum(x, axis=1) 
+  nonDiagonal -= diagonal
+  print("non diagonal element: ", nonDiagonal)
+
+  if np.all(diagonal > nonDiagonal):
+    return True
+  else:
+    return False
+
+def gauss_seidel(x, y, epsilon = 0.0001, maxIteration = 20):
+  x = np.array(x)
+  y = np.array(y)
+
+  result = np.zeros(x.shape[0])
+
+  diagonal = np.diag(x)
+
+  x = -x
+
+  np.fill_diagonal(x, 0)
+  print(x)
+
+  for i in range(maxIteration):
+    result_new = np.array(result)
+
+    for j, row in enumerate(x):
+      result_new[j] = (y[j] + np.dot(result_new, row)) / diagonal[j]
+    result_new = np.array(result_new)
+  
+    euclidianDistance = np.sqrt(np.dot(result_new - result, result_new - result))
+
+    print("iteration ", i, ": ", result_new)
+    print("euclidian distance: ", euclidianDistance)
+    
+    if euclidianDistance < epsilon:
+      print("solution: ", result_new)
+      return True
+    else:
+      result = result_new
+  return False
+
+for x in zip(xaxis, yaxis):
+  print(x)
+
+print()
+
+for i, (x, y) in enumerate(zip(xaxis, yaxis)):
+  print()
+  print("problem: ", (i + 1))
+  print("x component: ", x)
+  print("y component: ", y)
+
+  check_diagonally_dominant(x)
+
+  if check_diagonally_dominant(x):
+    print("the matrix is diagonally dominant.",)
+    if gauss_seidel(x, y):
+      print("convergent")
+    else:
+      print("not convergent")
+  else:
+    print("the matrix is NOT diagonally dominant.")
+
+-----------------------------------------------------------------------------
+
+Riemann
+
+import numpy as np
+
+def f(x):
+  # 4x^4+2x^3-6x
+  return 4*x**4+2*x**3-6*x
+
+a = -3
+b = 3
+n = 30
+
+
+x = np.linspace(a, b, n)
+y = f(x)
+
+l = (b-a)/(n-1)
+
+
+riemannLeft = l * sum(y[:n-1])
+print(f'riemann left: {riemannLeft}')
+
+
+riemannRight = l * sum(y[1:])
+print(f'riemann right: {riemannRight}')
+
+
+x2 = (x[1:] + x[:n-1]) / 2
+y2 = f(x2)
+
+riemannMid = l * sum(y2)
+print(f'riemann mid: {riemannMid}')
+
+-----------------------------------------------------------------------------
+
+Least Square Regression
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+x = np.array([1, 3, 6, 9, 5, 10])
+y = np.array([2, 4, 5, 7, 10, 12])
+
+A = np.vstack([x, np.ones(len(x))]).T
+print(A)
+
+y = y[:, np.newaxis]
+print(y)
+
+pinv = np.linalg.pinv(A)
+alpha = pinv.dot(y)
+print(f"gradient / slope: {alpha[0]}")
+print(f"b: {alpha[1]}")
+
+plt.plot(x, y, 'ob')
+
+plt.plot(x, alpha[0] * x + alpha[1], 'r')
+plt.show()
+
+-----------------------------------------------------------------------------
+
+NEWTON RAPHSON
+
+import numpy as np
+
+def f(x):
+  return x**2 + 3*x - 4
+
+def der_f(x):
+  return 2*x + 3
+
+def Newton_raphson(f0, f1, Xo, epsilon = 0.001, max_iteration = 20):
+  for i in range(1, max_iteration):
+    X1 = Xo - (f0(Xo) /f1(Xo))
+    print(f"Iteration: {i}, X1 = {X1}, f(X1) = {f0(X1)}")
+    if (np.abs(f0(X1)) < epsilon):
+      return X1
+    else:
+      Xo = X1 
+  return None
+
+rt = Newton_raphson(f, der_f, 100)
+if(rt != None):
+  print("Root of equation: ", rt)
+else:
+  print("Not found")
+
+-----------------------------------------------------------------------------
+
+Bisection Method
+
+import numpy as np
+
+coordinates = [
+    [3 , 4],
+    [-10, 17],
+    [10, -15],
+    [-2, 4],
+    [12, 5],
+    [-8, -13],
+    [7, 21],
+]
+
+def g(x):
+  return 10*x**3 + 8*x**2 + 9
+
+def bisection(f, left, right, epsilon = 0.001):
+
+  if(np.sign(f(left)) == np.sign(f(right))):
+    print("Not convergent")
+    return None
+
+  middle = (left + right)/2 
+
+  print(f"left - a: {left}, right - b: {right}, middle - m: {middle}")
+
+
+
+  if(np.abs(f(middle)) < epsilon):
+    print("Answer found")
+    return middle
+  elif(np.sign(f(left)) == np.sign(f(middle))):
+
+    return bisection(f, middle, right)
+
+  elif(np.sign(f(right)) == np.sign(f(middle))):
+
+    return bisection(f, left, middle)
+
+for(left, right) in coordinates:
+  print(f"Initial: left = {left}, right = {right}")
+  root = bisection(g, left, right)
+
+  if(root):
+    print(f"Root of Equation: {root}")
+  else:
+    print("Root of Equation invalid")
