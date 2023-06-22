@@ -1,0 +1,46 @@
+import numpy as np
+
+coordinates = [
+    [3 , 4],
+    [-10, 17],92
+    [10, -15],
+    [-2, 4],
+    [12, 5],
+    [-8, -13],
+    [7, 21],
+]
+
+def g(x):
+  return 10*x**3 + 8*x**2 + 9
+
+def bisection(f, left, right, epsilon = 0.001):
+
+  if(np.sign(f(left)) == np.sign(f(right))):
+    print("Not convergent")
+    return None
+
+  middle = (left + right)/2
+
+  print(f"left - a: {left}, right - b: {right}, middle - m: {middle}")
+
+
+
+  if(np.abs(f(middle)) < epsilon):
+    print("Answer found")
+    return middle
+  elif(np.sign(f(left)) == np.sign(f(middle))):
+
+    return bisection(f, middle, right)
+
+  elif(np.sign(f(right)) == np.sign(f(middle))):
+
+    return bisection(f, left, middle)
+
+for(left, right) in coordinates:
+  print(f"Initial: left = {left}, right = {right}")
+  root = bisection(g, left, right)
+
+  if(root):
+    print(f"Root of Equation: {root}")
+  else:
+    print("Root of Equation invalid")
